@@ -3,17 +3,15 @@ import Aphid
 import Foundation
 
 final class PerformanceMonitor {
+    
     let aphid = Aphid(clientId: "monitoring")
     
     static var sharedInstance: PerformanceMonitor!
     
     public init() throws {
-        
         PerformanceMonitor.sharedInstance = self
         try aphid.connect()
     }
-    
-    
     
     public func send(message: String) {
         aphid.publish(topic: "monitoring/get", withMessage: message)
@@ -21,8 +19,13 @@ final class PerformanceMonitor {
     
 }
 
+/**
+ measureBlock
+ 
+ Used to measure the performance inside of a block of a function.
+*/
 func measureBlock(_ functionName: String = #function, lineNum: Int = #line,
-                  f: (Void) throws ->Void) {
+                  f: (Void) throws ->Void) rethrows {
     let oldTime = Date()
     
     defer {
@@ -32,7 +35,7 @@ func measureBlock(_ functionName: String = #function, lineNum: Int = #line,
         PerformanceMonitor.sharedInstance.send(message: "\(functionName):\(lineNum) took \(dt) seconds")
     }
     
-    try? f()
+    return try f()
     
 }
 
